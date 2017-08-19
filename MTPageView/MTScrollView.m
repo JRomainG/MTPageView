@@ -82,7 +82,7 @@
     }
     [self.parentController setHideStatusBar:NO];
     [UIView animateWithDuration:0.10 animations:^{
-        [self.parentController setNeedsStatusBarAppearanceUpdate];
+        [self.parentController updateStatusBarDisplay];
         [[self.parentController tabTitleLabel] setAlpha:1.0];
     }];
     
@@ -106,7 +106,7 @@
     // Reset status bar and title label's appearences
     [self.parentController setHideStatusBar:NO];
     [UIView animateWithDuration:0.10 animations:^{
-        [self.parentController setNeedsStatusBarAppearanceUpdate];
+        [self.parentController updateStatusBarDisplay];
         [[self.parentController tabTitleLabel] setAlpha:1.0];
     }];
     
@@ -188,7 +188,7 @@
                         [self.parentController setHideStatusBar:YES];
                         [UIView animateWithDuration:0.10 animations:^{
                             [[self.parentController tabTitleLabel] setAlpha:0.0];
-                            [self.parentController setNeedsStatusBarAppearanceUpdate];
+                            [self.parentController updateStatusBarDisplay];
                         }];
                     }
                     
@@ -199,7 +199,7 @@
                     [self.parentController setHideStatusBar:NO];
                     [UIView animateWithDuration:0.10 animations:^{
                         [[self.parentController tabTitleLabel] setAlpha:1.0];
-                        [self.parentController setNeedsStatusBarAppearanceUpdate];
+                        [self.parentController updateStatusBarDisplay];
                     }];
                 }
                 break;
@@ -212,7 +212,7 @@
                 // Reset status bar and title label's appearences
                 [self.parentController setHideStatusBar:NO];
                 [UIView animateWithDuration:0.10 animations:^{
-                    [self.parentController setNeedsStatusBarAppearanceUpdate];
+                    [self.parentController updateStatusBarDisplay];
                     [[self.parentController tabTitleLabel] setAlpha:1.0];
                 }];
                 
@@ -230,7 +230,7 @@
                 // Reset status bar and title label's appearences
                 [self.parentController setHideStatusBar:NO];
                 [UIView animateWithDuration:0.10 animations:^{
-                    [self.parentController setNeedsStatusBarAppearanceUpdate];
+                    [self.parentController updateStatusBarDisplay];
                     [[self.parentController tabTitleLabel] setAlpha:1.0];
                 }];
                 
@@ -263,7 +263,7 @@
                 // Reset status bar and title label's appearences
                 [self.parentController setHideStatusBar:NO];
                 [UIView animateWithDuration:0.10 animations:^{
-                    [self.parentController setNeedsStatusBarAppearanceUpdate];
+                    [self.parentController updateStatusBarDisplay];
                     [[self.parentController tabTitleLabel] setAlpha:1.0];
                 }];
 
