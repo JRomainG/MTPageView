@@ -14,11 +14,39 @@
 
 @implementation MTPageViewController
 
+- (id)init {
+    self = [super init];
+    
+    if (self) {
+        [self initializeView];
+    }
+    
+    return self;
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    
+    if (self) {
+        [self initializeView];
+    }
+    
+    return self;
+}
+
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
+    
+    if (self) {
+        [self initializeView];
+    }
+    
+    return self;
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    
-    [self initializeView];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -62,6 +90,11 @@
     [self.scrollView setDecelerationRate:UIScrollViewDecelerationRateFast];
     [self.view insertSubview:self.scrollView belowSubview:self.pageControl];
     
+    // Create navigation bar
+    self.navBar = [[MTNavigationBar alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 44 + [[UIApplication sharedApplication] statusBarFrame].size.height)];
+    [self.navBar setHidden:YES];
+    [self.view addSubview:self.navBar];
+    
     // Create selectedToolbar, visible when one tab is selected
     self.selectedToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height - 44, self.view.frame.size.width, 44)];
 
@@ -92,8 +125,8 @@
     // Create deselectedToolbar, visible when the tabs are shown
     self.deselectedToolbar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height - 44, self.view.frame.size.width, 44)];
     
-    addTabButton = [[UIBarButtonItem alloc] initWithImage:[[UIImage imageNamed:@"Add"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate] style:UIBarButtonItemStylePlain target:self action:@selector(addTab)];
-    
+    addTabButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addTab)];
+
     UIBarButtonItem *space = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
     
     UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Done", nil) style:UIBarButtonItemStyleDone target:self action:@selector(hideTabs)];
@@ -120,6 +153,16 @@
     [self.view setBackgroundColor:[UIColor groupTableViewBackgroundColor]];
     [self setTabSize:_tabSize];
     [self hideTabsAnimated:NO];
+}
+
+- (void)updateStatusBarDisplay {
+    [self updateStatusBarDisplayForOrientation:[UIApplication sharedApplication].statusBarOrientation];
+}
+
+- (void)updateStatusBarDisplayForOrientation:(UIInterfaceOrientation)orientation {
+    BOOL shouldHideStatusBar = UIInterfaceOrientationIsLandscape(orientation) && UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone;
+    
+    [[UIApplication sharedApplication] setStatusBarHidden:self.hideStatusBar || shouldHideStatusBar];
 }
 
 - (BOOL)prefersStatusBarHidden {
@@ -156,9 +199,15 @@
     [self.scrollView cancelTabActions];
     
     [coordinator animateAlongsideTransition:^(id<UIViewControllerTransitionCoordinatorContext> context) {
+        // Display / hide status bar
+        [self updateStatusBarDisplay];
+        
         // Reposition page control
         [self.pageControl setFrame:CGRectMake(0, size.height - 18 - 44, size.width, 10)];
         [self updatePageControlFrameForSize:size];
+        
+        // Reposition navigation bar
+        [self.navBar setFrame:CGRectMake(0, 0, size.width, 44 + [[UIApplication sharedApplication] statusBarFrame].size.height)];
 
         // Reposition toolbars
         [self.selectedToolbar setFrame:CGRectMake(0, size.height - 44, size.width, 44)];
@@ -190,7 +239,6 @@
     float topSpace = self.tabSize.height * (1 - sizeFactor) / 2 + offset - [UIApplication sharedApplication].statusBarFrame.size.height - 5; // Fix this, there shouldn't be a -5
     float yPosition = [UIApplication sharedApplication].statusBarFrame.size.height + topSpace / 2 - titleHeight / 2;
     [self.tabTitleLabel setFrame:CGRectMake(0, yPosition, tabSize.width, titleHeight)];
-    [self.view sendSubviewToBack:self.tabTitleLabel];
     
     [self resizeTabsAnimated:NO];
 }
@@ -288,9 +336,11 @@
         [self.selectedToolbar setAlpha:0.0];
         [self.deselectedToolbar setAlpha:1.0];
         [self.navigationController.navigationBar setAlpha:0.0];
+        [self.navBar setAlpha:0.0];
     } completion:^(BOOL finished) {
         [self.deselectedToolbar setUserInteractionEnabled:YES];
         [self.navigationController.navigationBar setHidden:YES];
+        [self.navBar setHidden:YES];
         
         [self.scrollView setScrollEnabled:YES];
         [self.scrollView.panGestureRecognizer setEnabled:YES];
@@ -329,6 +379,8 @@
     [self.deselectedToolbar setUserInteractionEnabled:NO];
     [self.navigationController.navigationBar setAlpha:0.0]; // The hidden navigation bar's alpha is reset when changing orientation 
     [self.navigationController.navigationBar setHidden:NO];
+    [self.navBar setAlpha:0.0];
+    [self.navBar setHidden:NO];
     [self scrollToIndex:self.currentIndex animated:YES];
     
     [UIView animateWithDuration:animated * kTabsShowAnimationDuration animations:^{
@@ -339,6 +391,7 @@
         [self.selectedToolbar setAlpha:1.0];
         [self.deselectedToolbar setAlpha:0.0];
         [self.navigationController.navigationBar setAlpha:1.0];
+        [self.navBar setAlpha:1.0];
     } completion:^(BOOL finished) {
         [self.selectedToolbar setUserInteractionEnabled:YES];
         [self.scrollView.switchTabPanGestureRecognizer setEnabled:YES];
@@ -435,11 +488,7 @@
     [newTab setFrame:self.view.bounds];
     [newTab setIndex:index];
     [newTab setBackgroundColor:[UIColor whiteColor]];
-    if (title) {
-        [newTab setTitle:title];
-    } else {
-        [newTab setTitle:[NSString stringWithFormat:@"Tab %d", [self tabsCount] + 1]];
-    }
+    [newTab setTitle:title];
     
     return newTab;
 }
@@ -595,7 +644,7 @@
 }
 
 - (MTPageViewTab *)insertTabAtIndex:(int)index animated:(BOOL)animated {
-    return [self insertTabAtIndex:index withTitle:[NSString stringWithFormat:@"Tab %d", [self tabsCount] + 1] animated:animated];
+    return [self insertTabAtIndex:index withTitle:nil animated:animated];
 }
 
 - (MTPageViewTab *)insertTabAtIndex:(int)index withTitle:(NSString *)title {
@@ -693,11 +742,31 @@
     [self closeTabAtIndex:self.currentIndex];
 }
 
+- (void)closeAllTabs {
+    [self closeTabsCount:self.tabsCount];
+}
+
+- (void)closeTabsCount:(int)tabsCount {
+    if (tabsCount > 0) {
+        [self closeTabAtIndex:0 animated:NO completion:^(BOOL finished) {
+            [self closeTabsCount:tabsCount - 1];
+        }];
+    } else {
+        [self scrollToIndex:0 completion:^(BOOL finished) {
+            [self hideTabs];
+        }];
+    }
+}
+
 - (void)closeTabAtIndex:(int)index {
     [self closeTabAtIndex:index animated:YES];
 }
 
 - (void)closeTabAtIndex:(int)index animated:(BOOL)animated {
+    [self closeTabAtIndex:index animated:animated completion:nil];
+}
+
+- (void)closeTabAtIndex:(int)index animated:(BOOL)animated completion:(void (^) (BOOL finished))completion {
     if (![self canCloseTabAtIndex:index]) {
         return;
     }
@@ -712,7 +781,7 @@
     
     // Insert a new tab if the current one is the last one
     if ([self tabsCount] == 1) {
-        [self privateInsertTabWithoutScrollingAtIndex:1 withTitle:@"Tab 1"];
+        [self privateInsertTabWithoutScrollingAtIndex:1 withTitle:nil];
         [self didAddNewTabAtIndex:1];
     }
     
@@ -766,6 +835,10 @@
         [self updatePageControlFrame];
         [self didCloseTabAtIndex:index];
         [addTabButton setEnabled:[self canAddTab]];
+        
+        if (completion) {
+            completion(finished);
+        }
     }];
 }
 

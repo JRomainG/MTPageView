@@ -36,6 +36,7 @@ static const CGFloat kPageControlDotSpacing = 9.0f;
 @property (nonatomic, strong, readonly) NSMutableArray *tabContainers;
 @property (nonatomic, strong) UIPageControl *pageControl;
 @property (nonatomic, strong) MTScrollView *scrollView;
+@property (nonatomic, strong) MTNavigationBar *navBar;
 @property (nonatomic, strong) UIToolbar *selectedToolbar;
 @property (nonatomic, strong) UIToolbar *deselectedToolbar;
 @property (nonatomic, strong) UILabel *tabTitleLabel;
@@ -147,6 +148,11 @@ static const CGFloat kPageControlDotSpacing = 9.0f;
 - (void)closeCurrentTab;
 
 /**
+ * Closes all the tabs.
+ */
+- (void)closeAllTabs;
+
+/**
  * Closes the tab at the given index.
  *
  * @param index The index of the tab that should be closed.
@@ -160,6 +166,15 @@ static const CGFloat kPageControlDotSpacing = 9.0f;
  * @param animated Whether the removal should be animated or not.
  */
 - (void)closeTabAtIndex:(int)index animated:(BOOL)animated;
+
+/**
+ * Closes the tab at the given index.
+ *
+ * @param index The index of the tab that should be closed.
+ * @param animated Whether the removal should be animated or not.
+ * @param completion A block called when the tab finished being closed completed.
+ */
+- (void)closeTabAtIndex:(int)index animated:(BOOL)animated completion:(void (^) (BOOL finished))completion;
 
 
 /* Tabs info */
@@ -220,6 +235,11 @@ static const CGFloat kPageControlDotSpacing = 9.0f;
  * Forces the update of the page control's frame.
  */
 - (void)updatePageControlFrame;
+
+/**
+ * Updates the displayed status bar.
+ */
+- (void)updateStatusBarDisplay;
 
 
 /* Tabs display */
