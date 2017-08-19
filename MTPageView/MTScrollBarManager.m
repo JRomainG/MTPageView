@@ -129,7 +129,7 @@
 - (void)hideBarsAnimated:(BOOL)animated {
     _areBarsHidden = YES;
 
-    if (self.navBar.frame.size.height == self.navBar.maxHeight) {
+    if (self.navBar.frame.size.height != self.navBar.minHeight) {
         [self forceHideBarsAnimated:animated];
     }
 }
@@ -252,12 +252,32 @@
     isDragging = NO;
 }
 
+- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+    if ((self.navBar.frame.size.height - self.navBar.minHeight) / self.navBar.maxHeight < 0.5) {
+        [self hideBars];
+    } else {
+        [self showBars];
+    }
+}
+
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
     lastOffset = CGPointZero;
+    
+    if ((self.navBar.frame.size.height - self.navBar.minHeight) / self.navBar.maxHeight < 0.5) {
+        [self hideBars];
+    } else {
+        [self showBars];
+    }
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
     lastOffset = CGPointZero;
+    
+    if ((self.navBar.frame.size.height - self.navBar.minHeight) / self.navBar.maxHeight < 0.5) {
+        [self hideBars];
+    } else {
+        [self showBars];
+    }
 }
 
 @end

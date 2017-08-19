@@ -40,23 +40,20 @@
     return self;
 }
 
-- (void)initItems {
-    CGRect navigationBarFrame = CGRectMake(0, 0, self.bounds.size.width, 44 + [[UIApplication sharedApplication] statusBarFrame].size.height);
-    [self setFrame:navigationBarFrame];
-    
+- (void)initItems {    
     // Add a custom cancel button to the navigation bar
     self.cancelButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    [self.cancelButton setFrame:CGRectMake(self.frame.size.width - 50 - kNavBarSideMargin, kNavBarTopDownMargin, 50, self.frame.size.height - 2 * kNavBarTopDownMargin)];
     [self.cancelButton addTarget:self action:@selector(cancelAction) forControlEvents:UIControlEventTouchUpInside];
     [self.cancelButton setTitle:NSLocalizedString(@"Cancel", nil) forState:UIControlStateNormal];
-    [self.cancelButton setAutoresizingMask:UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleHeight];
+    [self.cancelButton setAutoresizingMask:UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin];
     [self addSubview:self.cancelButton];
-    
+    [self.cancelButton sizeToFit];
+    [self.cancelButton setFrame:CGRectMake(self.frame.size.width - self.cancelButton.frame.size.width - kNavBarSideMargin, kNavBarTopDownMargin + [UIApplication sharedApplication].statusBarFrame.size.height, self.cancelButton.frame.size.width, kNavBarMaxHeight - 2 * kNavBarTopDownMargin)];
+
     // Use a custom title field for the navigation bar
-    self.textField = [[MTTextField alloc] initWithFrame:CGRectMake(kNavBarSideMargin, kNavBarTopDownMargin, self.frame.size.width - self.cancelButton.frame.size.width - 3 * kNavBarSideMargin, self.frame.size.height - 2 * kNavBarTopDownMargin)];
+    _textField = [[MTTextField alloc] initWithFrame:CGRectMake(kNavBarSideMargin, kNavBarTopDownMargin + [UIApplication sharedApplication].statusBarFrame.size.height, self.frame.size.width - self.cancelButton.frame.size.width - 3 * kNavBarSideMargin, self.frame.size.height - 2 * kNavBarTopDownMargin - [UIApplication sharedApplication].statusBarFrame.size.height)];
     [self.textField setBackgroundColor:[UIColor whiteColor]];
     [self.textField setClearButtonMode:UITextFieldViewModeWhileEditing];
-    [self.textField setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
     [self.textField setDelegate:self];
     [self addSubview:self.textField];
     
@@ -74,7 +71,7 @@
 - (void)showCancelButtonAnimated:(BOOL)animated {
     [UIView animateWithDuration:kCancelButtonAnimationDuration * animated animations:^{
         [self.cancelButton setAlpha:1];
-        [self.textField setFrame:CGRectMake(kNavBarSideMargin, kNavBarTopDownMargin, self.frame.size.width - self.cancelButton.frame.size.width - 3 * kNavBarSideMargin, self.frame.size.height - 2 * kNavBarTopDownMargin)];
+        [self.textField setFrame:CGRectMake(self.textField.frame.origin.x, self.textField.frame.origin.y, self.frame.size.width - self.cancelButton.frame.size.width - 3 * kNavBarSideMargin, self.textField.frame.size.height)];
     }];
 }
 
@@ -85,16 +82,16 @@
 - (void)hideCancelButtonAnimated:(BOOL)animated {
     [UIView animateWithDuration:kCancelButtonAnimationDuration * animated animations:^{
         [self.cancelButton setAlpha:0];
-        [self.textField setFrame:CGRectMake(kNavBarSideMargin, kNavBarTopDownMargin, self.frame.size.width - 2 * kNavBarSideMargin, self.frame.size.height - 2 * kNavBarTopDownMargin)];
+        [self.textField setFrame:CGRectMake(kNavBarSideMargin, self.textField.frame.origin.y, self.frame.size.width - 2 * kNavBarSideMargin, self.textField.frame.size.height)];
     }];
 }
 
 - (float)maxHeight {
-    return kNavBarMaxHeight;
+    return kNavBarMaxHeight + [UIApplication sharedApplication].statusBarFrame.size.height;
 }
 
 - (float)minHeight {
-    return kNavBarMinHeight;
+    return kNavBarMinHeight + [UIApplication sharedApplication].statusBarFrame.size.height;
 }
 
 - (void)setTextField:(MTTextField *)textField {
@@ -107,6 +104,16 @@
     [self.textField setFrame:frame];
     [self.textField setAutoresizingMask:UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight];
     [self.textField setDelegate:self];
+}
+
+- (void)setFrame:(CGRect)frame {
+    [super setFrame:frame];
+    
+    if (self.cancelButton.alpha > 0) {
+        [self.textField setFrame:CGRectMake(kNavBarSideMargin, kNavBarTopDownMargin + [UIApplication sharedApplication].statusBarFrame.size.height, self.frame.size.width - self.cancelButton.frame.size.width - 3 * kNavBarSideMargin, self.frame.size.height - 2 * kNavBarTopDownMargin - [UIApplication sharedApplication].statusBarFrame.size.height)];
+    } else {
+        [self.textField setFrame:CGRectMake(kNavBarSideMargin, kNavBarTopDownMargin + [UIApplication sharedApplication].statusBarFrame.size.height, self.frame.size.width - 2 * kNavBarSideMargin, self.frame.size.height - 2 * kNavBarTopDownMargin - [UIApplication sharedApplication].statusBarFrame.size.height)];
+    }
 }
 
 
