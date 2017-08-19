@@ -8,12 +8,10 @@
 
 #import <UIKit/UIKit.h>
 
-static const CGFloat kMinTextFieldHeight = 20.0f;
+static const CGFloat kMinTextFieldHeight = 0.0f;
 static const CGFloat kMinTextFieldFontSize = 8.0f;
+static const CGFloat kTextFieldCornerRadius = 5.0f;
 
-@interface MTTextField : UITextField {
-    UIFont *savedFont;
-    BOOL isReduced;
-}
+@interface MTTextField : UITextField
 
 @end

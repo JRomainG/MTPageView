@@ -8,6 +8,7 @@
 
 #import "MTTextField.h"
 #import "MTNavigationBar.h"
+#import <QuartzCore/QuartzCore.h>
 
 @implementation MTTextField
 
@@ -32,68 +33,27 @@
 }
 
 - (void)initContent {
-    savedFont = self.font;
-    isReduced = NO;
-    
-    [self setBorderStyle:UITextBorderStyleRoundedRect];
+    [self setBorderStyle:UITextBorderStyleNone];
     [self setContentVerticalAlignment:UIControlContentVerticalAlignmentCenter];
     [self setAdjustsFontSizeToFitWidth:YES];
+    [self.layer setCornerRadius:kTextFieldCornerRadius];
+    [self.layer setMasksToBounds:YES];
+
     [self setNeedsDisplay];
 }
 
 - (void)setFrame:(CGRect)frame {
     [super setFrame:frame];
     
-    if (frame.size.height < kMinTextFieldHeight) {
-        if (!isReduced) {
-            // Only need to do this once
-            isReduced = YES;
-            [self setTextAlignment:NSTextAlignmentCenter];
-            [self setBorderStyle:UITextBorderStyleNone];
-            [self setNeedsDisplay];
-
-            [self setBackgroundColor:[UIColor clearColor]];
-            
-            if (!self.isFirstResponder) {
-                [self.leftView setAlpha:0];
-                [self.rightView setAlpha:0];
-            }
-        }
-        
-        float fontSize = savedFont.pointSize * (1 - fabs((frame.size.height - kMinTextFieldHeight) / kMinTextFieldHeight));
-        fontSize = MAX(kMinTextFieldFontSize, fontSize);
-        [super setFont:[UIFont fontWithName:savedFont.fontName size:fontSize]];
-    } else {
-        if (isReduced) {
-            // Only need to do this once
-            isReduced = NO;
-            [self setTextAlignment:NSTextAlignmentLeft];
-            [self setBorderStyle:UITextBorderStyleRoundedRect];
-            [self setNeedsDisplay];
-        
-            [super setFont:savedFont];
-        }
-        
-        float advancement = (frame.size.height - kMinTextFieldHeight) / ([self maxHeight] - kMinTextFieldHeight);
-        [self setBackgroundColor:[UIColor colorWithWhite:1.0 alpha:advancement]];
-        
-        if (!self.isFirstResponder) {
-            [self.leftView setAlpha:advancement];
-            [self.rightView setAlpha:advancement];
-        }
+    float advancement = (frame.size.height - kMinTextFieldHeight) / ([self maxHeight] - kMinTextFieldHeight);
+    
+    if (!self.isFirstResponder) {
+        [self setAlpha:advancement];
     }
 }
 
 - (float)maxHeight {
-    return [(MTNavigationBar *)self.superview maxHeight] - 2 * kNavBarTopDownMargin;
-}
-
-- (void)setFont:(UIFont *)font {
-    savedFont = font;
-    
-    if (!isReduced) {
-        [super setFont:font];
-    }
+    return [(MTNavigationBar *)self.superview maxHeight] - 2 * kNavBarTopDownMargin - [UIApplication sharedApplication].statusBarFrame.size.height;
 }
 
 @end
