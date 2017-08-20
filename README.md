@@ -22,3 +22,6 @@ MTPageView is a multi-tab controller built using a UIScrollView.
 - If you are using a storyboard, embed your view controller in a navigation controller and change the navigation controller's navigation bar class to MTNavigationBar.
 
 See the MTPageViewExample sample project for an example of implementation.
+
+<h3 align="center">Usage</h3>
+MTPageView is used in [Tob](https://github.com/JRock007/Tob), an open source Tor browser for iOS.
