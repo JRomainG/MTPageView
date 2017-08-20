@@ -33,11 +33,13 @@
 }
 
 - (void)initContent {
+    [self setClearButtonMode:UITextFieldViewModeWhileEditing];
     [self setBorderStyle:UITextBorderStyleNone];
     [self setContentVerticalAlignment:UIControlContentVerticalAlignmentCenter];
     [self setAdjustsFontSizeToFitWidth:YES];
     [self.layer setCornerRadius:kTextFieldCornerRadius];
-    [self.layer setMasksToBounds:YES];
+    [self.layer setBorderColor:[UIColor colorWithWhite:0.8 alpha:1.0].CGColor];
+    [self.layer setBorderWidth:1.0];
 
     [self setNeedsDisplay];
 }
@@ -54,6 +56,10 @@
 
 - (float)maxHeight {
     return [(MTNavigationBar *)self.superview maxHeight] - 2 * kNavBarTopDownMargin - [UIApplication sharedApplication].statusBarFrame.size.height;
+}
+
+- (void)restoreSavedText {
+    [self setText:_savedText];
 }
 
 @end

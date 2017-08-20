@@ -61,6 +61,7 @@
 }
 
 - (void)cancelAction {
+    [self.textField restoreSavedText];
     [self.textField resignFirstResponder];
 }
 

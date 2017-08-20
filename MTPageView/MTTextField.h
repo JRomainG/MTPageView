@@ -12,6 +12,10 @@ static const CGFloat kMinTextFieldHeight = 0.0f;
 static const CGFloat kMinTextFieldFontSize = 8.0f;
 static const CGFloat kTextFieldCornerRadius = 5.0f;
 
-@interface MTTextField : UITextField
+@interface MTTextField : UITextField {
+    NSString *_savedText;
+}
+
+- (void)restoreSavedText;
 
 @end
