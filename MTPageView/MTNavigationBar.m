@@ -87,12 +87,23 @@
     }];
 }
 
+- (float)statusBarHeight {
+    // [UIApplication sharedApplication].statusBarFrame.size.height doesn't always give the right height when and orientation just changed
+    if (UIInterfaceOrientationIsPortrait([[UIApplication sharedApplication] statusBarOrientation]) || UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
+        // Status bar is displayed full height
+        return [UIApplication sharedApplication].statusBarFrame.size.height;
+    } else {
+        // status bar should be hidden
+        return 0;
+    }
+}
+
 - (float)maxHeight {
-    return kNavBarMaxHeight + [UIApplication sharedApplication].statusBarFrame.size.height;
+    return kNavBarMaxHeight + [self statusBarHeight];
 }
 
 - (float)minHeight {
-    return kNavBarMinHeight + [UIApplication sharedApplication].statusBarFrame.size.height;
+    return kNavBarMinHeight + [self statusBarHeight];
 }
 
 - (void)setTextField:(MTTextField *)textField {
