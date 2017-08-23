@@ -58,7 +58,7 @@
     [self showBarsAnimated:NO];
     
     [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceOrientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceOrientationDidChange:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil]; // Status bar orientation is changed to compute navBar's full height so use this notification, not the device orientation change
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidShow:) name:UIKeyboardDidShowNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardDidHide:) name:UIKeyboardDidHideNotification object:nil];
 }
@@ -74,7 +74,10 @@
 
 - (void)deviceOrientationDidChange:(NSNotification *)notification {
     // Make sure we update the frame of the bars
-    if (self.areBarsHidden) {
+    if (areTabsVisible) {
+        [self.scrollView setContentInset:UIEdgeInsetsMake(kHeaderViewHeight, 0, 0, 0)];
+        [self.scrollView setScrollIndicatorInsets:UIEdgeInsetsMake(0, 0, 0, 0)];
+    } else if (self.areBarsHidden) {
         [self forceHideBarsAnimated:NO];
     } else {
         [self forceShowBarsAnimated:NO];
@@ -144,6 +147,8 @@
 }
 
 - (void)tabsWillBecomeHidden {
+    areTabsVisible = NO;
+    
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.75 * kTabsShowAnimationDuration * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self forceShowBarsAnimated:YES];
         
@@ -157,6 +162,8 @@
 }
 
 - (void)tabsWillBecomeVisible {
+    areTabsVisible = YES;
+
     [self.scrollView setContentInset:UIEdgeInsetsMake(kHeaderViewHeight, 0, 0, 0)];
     [self.scrollView setScrollIndicatorInsets:UIEdgeInsetsMake(0, 0, 0, 0)];
 }

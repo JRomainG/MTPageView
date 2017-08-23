@@ -15,6 +15,7 @@ static const CGFloat kBarsAnimationDuration = 0.1f;
 @interface MTScrollBarManager : UIView <UIScrollViewDelegate, UITextFieldDelegate> {
     CGPoint lastOffset;
     BOOL isDragging;
+    BOOL areTabsVisible;
 }
 
 @property (nonatomic, strong) UIToolbar *toolbar;
