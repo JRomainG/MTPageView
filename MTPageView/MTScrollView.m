@@ -39,15 +39,15 @@
     [self addGestureRecognizer:self.closePanGestureRecognizer];
     
     self.switchTabPanGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handleSwitchPan:)];
-    [self.switchTabPanGestureRecognizer setMinimumNumberOfTouches:2];
     [self.switchTabPanGestureRecognizer setDelaysTouchesBegan:NO];
     [self.switchTabPanGestureRecognizer setDelaysTouchesEnded:NO];
+    [self.switchTabPanGestureRecognizer setMinimumNumberOfTouches:2];
     [self.switchTabPanGestureRecognizer setMaximumNumberOfTouches:2];
-    [self.switchTabPanGestureRecognizer setCancelsTouchesInView:NO];
+    // [self.switchTabPanGestureRecognizer setCancelsTouchesInView:NO];
     [self addGestureRecognizer:self.switchTabPanGestureRecognizer];
     
-#warning Kinda hacky
     // Add a tap gesture recognizer to prevent scrollViewWillEndDragging being called by simply tapping the scroll view (usually after scrolling to change tab), making the view scroll back 1 tab
+    // TODO: Kinda hacky
     self.tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap)];
     [self.tapGestureRecognizer setNumberOfTouchesRequired:1];
     [self.tapGestureRecognizer setNumberOfTapsRequired:1];
@@ -80,11 +80,6 @@
     if (panDirection == MTPanDirectionUp && draggedContainer) {
         [self.parentController didCancelClosingTabAtIndex:draggedContainer.tab.index];
     }
-    [self.parentController setHideStatusBar:NO];
-    [UIView animateWithDuration:0.10 animations:^{
-        [self.parentController updateStatusBarDisplay];
-        [[self.parentController tabTitleLabel] setAlpha:1.0];
-    }];
     
     // Reset container appearance
     [UIView animateWithDuration:kMovingHighlightAnimationDuration animations:^{
@@ -107,7 +102,7 @@
     [self.parentController setHideStatusBar:NO];
     [UIView animateWithDuration:0.10 animations:^{
         [self.parentController updateStatusBarDisplay];
-        [[self.parentController tabTitleLabel] setAlpha:1.0];
+        [[self.parentController tabTitleLabel] setAlpha:_parentController.tabsAreVisible];
     }];
     
     // Reset scroll
@@ -282,11 +277,7 @@
     }
 }
 
-- (void)handleSwitchPan:(UIPanGestureRecognizer *)gesture {
-    if (!self.parentController.enableRapideScroll) {
-        return;
-    }
-    
+- (void)handleSwitchPan:(UIPanGestureRecognizer *)gesture {    
     CGPoint vel = [gesture velocityInView:self];
     
     if (CGPointEqualToPoint(touchLocation, CGPointZero)) {
