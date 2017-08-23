@@ -138,7 +138,7 @@
     float sizeFactor = UIInterfaceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation) ? kPortraitSizeFactor: kLandscapeSizeFactor;
     float offset = UIInterfaceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation) ? kPortraitTabDisplayOffset: kLandscapeTabDisplayOffset;
     float titleHeight = 20;
-#warning -5 is hacky, find why it's not centered without it
+    // TODO: -5 is hacky, find why it's not centered without it
     float topSpace = self.tabSize.height * (1 - sizeFactor) / 2 + offset - [UIApplication sharedApplication].statusBarFrame.size.height - 5;
     float yPosition = [UIApplication sharedApplication].statusBarFrame.size.height + topSpace / 2 - titleHeight / 2 - 5;
     
@@ -466,9 +466,9 @@
             // Don't make the page control go too far right
             xOrigin = kPageControlDotRadius + kPageControlDotSpacing / 2;
         } else if (xOrigin + pageControlWidth + kPageControlDotSpacing < size.width) {
-#warning Adding kPageControlDotSpacing is kinda hacky, find out why it's needed
             // Don't make the page control go too far left
             // No need to use kPageControlDotRadius and kPageControlDotSpacing as they are included in pageControlWidth
+            // TODO: Adding kPageControlDotSpacing is kinda hacky, find out why it's needed
             xOrigin = size.width - pageControlWidth - kPageControlDotSpacing;
         }
         
@@ -774,20 +774,23 @@
     [self showTabsAnimated:animated];
     [self willCloseTabAtIndex:index];
     
-    __block MTPageViewContainer *container = [self.tabContainers objectAtIndex:index];
+    __block MTPageViewContainer *closedContainer = [self.tabContainers objectAtIndex:index];
     
-    // Scroll to the previous tab if this is the last tab (and there is more than one tab)
-    __block BOOL scrollToLeft = (index != 0 && (index == [self tabsCount] - 1));
+    // Scroll to the previous tab if this is the tab at the end of the list
+    BOOL scrollToLeft = index == [self tabsCount] - 1;
+    
+    // Find out if we have to insert a new tab
+    BOOL isLastTab = [self tabsCount] == 1;
     
     // Insert a new tab if the current one is the last one
-    if ([self tabsCount] == 1) {
-        [self privateInsertTabWithoutScrollingAtIndex:1 withTitle:nil];
-        [self didAddNewTabAtIndex:1];
+    if (isLastTab) {
+        [self privateInsertTabWithoutScrollingAtIndex:0 withTitle:nil];
+        [self didAddNewTabAtIndex:0];
     }
     
     [UIView animateWithDuration:animated * kTabsCloseAnimationDuration animations:^{
         // Hide tab
-        [container setAlpha:0.0];
+        [closedContainer setAlpha:0.0];
         
         if (scrollToLeft) {
             // Scroll to new index
@@ -801,13 +804,13 @@
         }
     } completion:^(BOOL finished) {
         // Remove closed tab from superview
-        [container.tab removeFromSuperview];
-        [container setTab:nil];
-        [container removeFromSuperview];
-        container = nil;
+        [closedContainer.tab removeFromSuperview];
+        [closedContainer setTab:nil];
+        [closedContainer removeFromSuperview];
+        closedContainer = nil;
         
         // Update tab list and number of tabs
-        [self.tabContainers removeObjectAtIndex:index];
+        [self.tabContainers removeObjectAtIndex:index + isLastTab];
         [self.pageControl setNumberOfPages:[self tabsCount]];
         [self.numberOfTabsLabel setText:[NSString stringWithFormat:@"%d", [self tabsCount]]];
         
