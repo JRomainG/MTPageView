@@ -40,6 +40,7 @@
     [self.layer setCornerRadius:kTextFieldCornerRadius];
     [self.layer setBorderColor:[UIColor colorWithWhite:0.8 alpha:1.0].CGColor];
     [self.layer setBorderWidth:1.0];
+    [self.layer setMasksToBounds:YES];
 
     [self setNeedsDisplay];
 }

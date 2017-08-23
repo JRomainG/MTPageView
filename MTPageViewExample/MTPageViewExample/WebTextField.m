@@ -104,7 +104,7 @@
 - (void)setFrame:(CGRect)frame {
     [super setFrame:frame];
 
-    if (isReduced || self.isFirstResponder) {
+    if (self.isFirstResponder) {
         [super setRightViewMode:UITextFieldViewModeNever];
         [super setLeftViewMode:UITextFieldViewModeNever];
     } else {
