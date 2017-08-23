@@ -14,7 +14,7 @@ static const CGFloat kNavBarSideMargin = 5.0f;
 
 static const CGFloat kCancelButtonAnimationDuration = 0.3f;
 
-static const CGFloat kNavBarMinHeight = 10.0f;
+static const CGFloat kNavBarMinHeight = 0.0f;
 static const CGFloat kNavBarMaxHeight = 44.0f;
 
 @interface MTNavigationBar : UINavigationBar <UITextFieldDelegate>
